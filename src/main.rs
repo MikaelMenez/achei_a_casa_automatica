@@ -220,7 +220,14 @@ fn call_api_samsung(
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    dotenv().ok();
+    if dotenvy::dotenv().is_err() {
+        // 2. Se falhar, tenta carregar do diretório onde o executável está (ótimo para produção/PATH)
+        if let Ok(mut path) = env::current_exe() {
+            path.pop();
+            path.push(".env");
+            dotenvy::from_path(&path).ok();
+        }
+    }
     let ar_id = env::var("AR_QUARTO").expect("no device id on .env");
     let api_samsung = env::var("SMART_THINGS_TOKEN").expect("no api key for smart things");
 
